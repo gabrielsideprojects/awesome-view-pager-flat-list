@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,9 +9,11 @@ import {
   Alert,
   FlatList,
 } from "react-native";
+import Dots from "react-native-dots-pagination";
 
 export default function App() {
-  const [viewPagerModalIsVisible, setViewPagerModalIsVisible] = useState(true);
+  const [activeDot, setActiveDot] = useState(0);
+  const [viewPagerModalIsVisible, setViewPagerModalIsVisible] = useState(false);
   const texts = [
     {
       id: "1",
@@ -26,18 +28,14 @@ export default function App() {
       text: "Teste 3",
     },
   ];
-  const _onViewableItemsChanged = ({ viewableItems }) => {
-    if (viewableItems && viewableItems[0].index != null) {
-      if (viewableItems[0].index === 2) {
-      } else {
-      }
-      // this.setState({ activePixKnowMoreViewPager: viewableItems[0].index });
-    }
-  };
-
-  const _viewabilityConfig = {
+  // useCallback "cachea" a function para ela não ser criada a cada render.
+  const viewabilityConfig = {
     itemVisiblePercentThreshold: 50,
   };
+  const handleVieweableItemsChanged = useCallback(({ viewableItems }) => {
+    setActiveDot(viewableItems[0].index);
+  }, []);
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -46,7 +44,10 @@ export default function App() {
       >
         <Text>Open the most awesome view pager modal!</Text>
       </Pressable>
-      <Modal visible={viewPagerModalIsVisible}>
+      <Modal
+        onRequestClose={() => setViewPagerModalIsVisible(false)}
+        visible={viewPagerModalIsVisible}
+      >
         <View style={styles.modalMainContainer}>
           <View style={styles.modalSubContainer}>
             <FlatList
@@ -55,11 +56,24 @@ export default function App() {
               horizontal
               keyExtractor={(item) => item.id}
               pagingEnabled
+              onViewableItemsChanged={handleVieweableItemsChanged}
+              viewabilityConfig={viewabilityConfig}
               showsHorizontalScrollIndicator={false}
               renderItem={({ item }) => (
                 <Text style={styles.viewPagerTextStyle}>{item.text}</Text>
               )}
             />
+            <View style={styles.dotsContainer}>
+              <Dots
+                activeDotWidth={6}
+                activeDotHeight={6}
+                passiveDotHeight={6}
+                passiveDotWidth={6}
+                length={3}
+                activeColor={"#000"}
+                active={activeDot}
+              />
+            </View>
           </View>
         </View>
       </Modal>
@@ -113,5 +127,9 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     alignItems: "center",
     justifyContent: "center",
+  },
+  dotsContainer: {
+    height: 15,
+    marginBottom: 10,
   },
 });
