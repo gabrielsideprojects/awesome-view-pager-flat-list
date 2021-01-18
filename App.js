@@ -33,6 +33,7 @@ export default function App() {
     itemVisiblePercentThreshold: 50,
   };
   const handleVieweableItemsChanged = useCallback(({ viewableItems }) => {
+    console.log("entrou aqui");
     setActiveDot(viewableItems[0].index);
   }, []);
 
@@ -45,12 +46,14 @@ export default function App() {
         <Text>Open the most awesome view pager modal!</Text>
       </Pressable>
       <Modal
+        testID="viewPagerModal"
         onRequestClose={() => setViewPagerModalIsVisible(false)}
         visible={viewPagerModalIsVisible}
       >
         <View style={styles.modalMainContainer}>
           <View style={styles.modalSubContainer}>
             <FlatList
+              testID="viewPagerList"
               contentContainerStyle={styles.alignItemsCenter}
               data={texts}
               horizontal
@@ -59,8 +62,14 @@ export default function App() {
               onViewableItemsChanged={handleVieweableItemsChanged}
               viewabilityConfig={viewabilityConfig}
               showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <Text style={styles.viewPagerTextStyle}>{item.text}</Text>
+              renderItem={({ item, index }) => (
+                <Text
+                  testID={String(index)}
+                  key={index}
+                  style={styles.viewPagerTextStyle}
+                >
+                  {item.text}
+                </Text>
               )}
             />
             <View style={styles.dotsContainer}>
